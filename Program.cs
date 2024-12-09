@@ -1,3 +1,4 @@
+using Identity;
 using Identity.Data;
 using Identity.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +21,26 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
-app.MapControllerRoute(name: "default",
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=dashboard}/{action=index}/{id?}"
+    );
+
+app.MapControllerRoute(
+    name: "default",
     pattern: "{controller=account}/{action=register}"
     );
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+    DbInitializer.Seed(userManager, roleManager);
+}
+
 app.Run();

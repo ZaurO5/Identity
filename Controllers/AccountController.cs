@@ -9,12 +9,15 @@ namespace Identity.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(UserManager<User> userManager,
-                                 SignInManager<User> signInManager)
+                                 SignInManager<User> signInManager,
+                                 RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet]
@@ -73,10 +76,41 @@ namespace Identity.Controllers
                 return View(model);
             }
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-               return Redirect(model.ReturnUrl);
+                return Redirect(model.ReturnUrl);
 
             return RedirectToAction("index", "home");
-
         }
+
+        //[HttpGet]
+        //public IActionResult AddAdmin()
+        //{
+        //    var role = new IdentityRole
+        //    {
+        //        Name = "Admin"
+        //    };
+
+        //    var roleResult = _roleManager.CreateAsync(role).Result;
+        //    if (!roleResult.Succeeded)
+        //        return NotFound("Cannot add Admin");
+
+
+        //    var user = new User
+        //    {
+        //        UserName = "admin@app.com",
+        //        Email = "admin@app.com",
+        //        City = "Baku",
+        //        Country = "Azerbaijan"
+        //    };
+
+        //    var result = _userManager.CreateAsync(user, "Admin123!").Result;
+        //    if (!result.Succeeded)
+        //        return NotFound("Cannot add Admin");
+
+        //    var addToRoleResult = _userManager.AddToRoleAsync(user, role.Name).Result;
+        //    if (!addToRoleResult.Succeeded)
+        //        return NotFound("Cannot give Admin status to user");
+
+        //    return Ok(user);
+        //}
     }
 }
