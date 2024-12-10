@@ -81,36 +81,11 @@ namespace Identity.Controllers
             return RedirectToAction("index", "home");
         }
 
-        //[HttpGet]
-        //public IActionResult AddAdmin()
-        //{
-        //    var role = new IdentityRole
-        //    {
-        //        Name = "Admin"
-        //    };
-
-        //    var roleResult = _roleManager.CreateAsync(role).Result;
-        //    if (!roleResult.Succeeded)
-        //        return NotFound("Cannot add Admin");
-
-
-        //    var user = new User
-        //    {
-        //        UserName = "admin@app.com",
-        //        Email = "admin@app.com",
-        //        City = "Baku",
-        //        Country = "Azerbaijan"
-        //    };
-
-        //    var result = _userManager.CreateAsync(user, "Admin123!").Result;
-        //    if (!result.Succeeded)
-        //        return NotFound("Cannot add Admin");
-
-        //    var addToRoleResult = _userManager.AddToRoleAsync(user, role.Name).Result;
-        //    if (!addToRoleResult.Succeeded)
-        //        return NotFound("Cannot give Admin status to user");
-
-        //    return Ok(user);
-        //}
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction(nameof(Login));
+        }
     }
 }
