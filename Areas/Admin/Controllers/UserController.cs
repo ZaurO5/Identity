@@ -1,4 +1,5 @@
 ﻿using Identity.Areas.Admin.Models.User;
+using Identity.Constants;
 using Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +50,7 @@ namespace Identity.Areas.Admin.Controllers
             return View(model);
         }
 
+        #region Create
         [HttpGet]
         public IActionResult Create()
         {
@@ -107,6 +109,123 @@ namespace Identity.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        #endregion
+
+        #region Update
+
+        public IActionResult Update(string id)
+        {
+            var user = _userManager.FindByIdAsync(id).Result;
+            if (user is null) return NotFound();
+
+            List<string> roleIds = new List<string>();
+
+            var userRoles = _userManager.GetRolesAsync(user).Result;
+            foreach (var userRole in userRoles)
+            {
+                var role = _roleManager.FindByNameAsync(userRole).Result;
+                roleIds.Add(role.Id);
+            }
+
+            var model = new UserUpdateVM()
+            {
+                Country = user.Country,
+                City = user.City,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Roles = _roleManager.Roles.Where(r => r.Name != UserRoles.Admin.ToString()).Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id
+                }).ToList(),
+                RoleIds = roleIds
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Update(string id, UserUpdateVM model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = _userManager.FindByIdAsync(id).Result;
+            if (user is null) return NotFound();
+
+            user.Country = model.Country;
+            user.City = model.City;
+            user.PhoneNumber = model.PhoneNumber;
+
+            if (model.NewPassword is not null)
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, model.NewPassword);
+
+            List<string> roleIds = new List<string>();
+
+            var userRoles = _userManager.GetRolesAsync(user).Result;
+            foreach (var userRole in userRoles)
+            {
+                var role = _roleManager.FindByNameAsync(userRole).Result;
+                roleIds.Add(role.Id);
+            }
+
+            var ShouldBeAddedRoleIds = model.RoleIds.Except(roleIds).ToList();
+            var ShouldBeDeletedRoleIds = roleIds.Except(model.RoleIds).ToList();
+
+            foreach (var roleId in ShouldBeAddedRoleIds)
+            {
+                var role = _roleManager.FindByIdAsync(roleId).Result;
+                if (role is null)
+                {
+                    ModelState.AddModelError("RoleIds", "Role is not found");
+                    return View(model);
+                }
+
+                var result = _userManager.AddToRoleAsync(user, role.Name).Result;
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+
+                    return View(model);
+                }
+            }
+
+            foreach (var roleId in ShouldBeDeletedRoleIds)
+            {
+                var role = _roleManager.FindByIdAsync(roleId).Result;
+                if (role is null)
+                {
+                    ModelState.AddModelError("RoleIds", "Role is not found");
+                    return View(model);
+                }
+
+                var result = _userManager.RemoveFromRoleAsync(user, role.Name).Result;
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+
+                    return View(model);
+                }
+            }
+
+            var UpdateResult = _userManager.UpdateAsync(user).Result;
+            if (!UpdateResult.Succeeded)
+            {
+                foreach (var error in UpdateResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        #endregion
+
+        #region Delete
+
         [HttpPost]
         public IActionResult Delete(string id)
         {
@@ -118,5 +237,7 @@ namespace Identity.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        #endregion
     }
 }
