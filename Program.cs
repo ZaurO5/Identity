@@ -1,8 +1,12 @@
 using Identity;
 using Identity.Data;
 using Identity.Entities;
+using Identity.Utilities.EmailHandler.Abstract;
+using Identity.Utilities.EmailHandler.Concrete;
+using Identity.Utilities.EmailHandler.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +23,10 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<AppDbContext>();
+
+var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfiguration);
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 

@@ -2,6 +2,8 @@
 using Identity.ViewModels.Account;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Identity.Utilities.EmailHandler.Models;
+using Identity.Utilities.EmailHandler.Abstract;
 
 namespace Identity.Controllers
 {
@@ -10,15 +12,20 @@ namespace Identity.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailService _emailService;
 
         public AccountController(UserManager<User> userManager,
                                  SignInManager<User> signInManager,
-                                 RoleManager<IdentityRole> roleManager)
+                                 RoleManager<IdentityRole> roleManager,
+                                 IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
+
+        #region Register
 
         [HttpGet]
         public IActionResult Register()
@@ -51,6 +58,10 @@ namespace Identity.Controllers
             return RedirectToAction(nameof(Login));
         }
 
+        #endregion
+
+        #region Login
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -81,11 +92,81 @@ namespace Identity.Controllers
             return RedirectToAction("index", "home");
         }
 
+        #endregion
+
+        #region LogOut
+
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction(nameof(Login));
         }
+
+        #endregion
+
+        #region ForgetPassword
+
+        [HttpGet]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ForgetPassword(AccountForgetPasswordVM model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = _userManager.FindByEmailAsync(model.Email).Result;
+            if (user is null)
+            {
+                ModelState.AddModelError("Email", "User not found");
+                return View(model);
+            }
+
+            var token = _userManager.GeneratePasswordResetTokenAsync(user).Result;
+            var url = Url.Action(nameof(ResetPassword), "Account", new { token, user.Email }, Request.Scheme);
+            _emailService.SendMessage(new Message(new List<string> { user.Email }, "Forget Password?", url));
+
+            ViewBag.NotificationText = "Mail sent successfully";
+            return View("Notification");
+        }
+
+        #endregion
+
+        #region ResetPassword
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(AccountResetPasswordVM model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = _userManager.FindByNameAsync(model.Email).Result;
+            if (user is null)
+            {
+                ModelState.AddModelError("Password", "It was not possible to update the password");
+                return View(model);
+            }
+
+            var result = _userManager.ResetPasswordAsync(user, model.Token, model.Password).Result;
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        #endregion
     }
 }

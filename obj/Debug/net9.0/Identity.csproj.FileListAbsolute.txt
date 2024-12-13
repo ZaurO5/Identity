@@ -1989,3 +1989,7 @@ C:\Users\User\source\repos\Identity\Identity\obj\Debug\net9.0\compressed\39zxl0s
 C:\Users\User\source\repos\Identity\Identity\obj\Debug\net9.0\compressed\17df41ngjy-33z6q9z31h.gz
 C:\Users\User\source\repos\Identity\Identity\obj\Debug\net9.0\compressed\8sda18sku1-rszun4iext.gz
 C:\Users\User\source\repos\Identity\Identity\obj\Debug\net9.0\compressed\h2vegxltnf-l5o0ocrnlv.gz
+C:\Users\User\source\repos\Identity\Identity\bin\Debug\net9.0\MailKit.dll
+C:\Users\User\source\repos\Identity\Identity\bin\Debug\net9.0\MimeKit.dll
+C:\Users\User\source\repos\Identity\Identity\bin\Debug\net9.0\NETCore.MailKit.dll
+C:\Users\User\source\repos\Identity\Identity\bin\Debug\net9.0\BouncyCastle.Crypto.dll

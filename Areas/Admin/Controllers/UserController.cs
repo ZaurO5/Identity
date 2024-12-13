@@ -224,6 +224,27 @@ namespace Identity.Areas.Admin.Controllers
 
         #endregion
 
+        #region Details
+
+        [HttpGet]
+        public IActionResult Details(string id)
+        {
+            var user = _userManager.FindByIdAsync(id).Result;
+            if (user is null) return NotFound();
+
+            var model = new UserDetailsVM
+            {
+                Email = user.Email,
+                City = user.City,
+                Country = user.Country,
+                Roles = _userManager.GetRolesAsync(user).Result.ToList()
+            };
+
+            return View(model);
+        }
+
+        #endregion
+
         #region Delete
 
         [HttpPost]
