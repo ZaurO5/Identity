@@ -94,14 +94,14 @@ namespace Identity.Areas.Admin.Controllers
                 var role = _roleManager.FindByIdAsync(roleId).Result;
                 if (role is null)
                 {
-                    ModelState.AddModelError("RoleIds", "This role is not available");
+                    ModelState.AddModelError("RoleIds", " Role not found");
                     return View(model);
                 }
 
                 var addToRoleResult = _userManager.AddToRoleAsync(user, role.Name).Result;
                 if (!addToRoleResult.Succeeded)
                 {
-                    ModelState.AddModelError("RoleIds", "Cannot give this status to user");
+                    ModelState.AddModelError("RoleIds", "Impossible give status to user");
                     return View(model);
                 }
             }
@@ -176,7 +176,7 @@ namespace Identity.Areas.Admin.Controllers
                 var role = _roleManager.FindByIdAsync(roleId).Result;
                 if (role is null)
                 {
-                    ModelState.AddModelError("RoleIds", "Role is not found");
+                    ModelState.AddModelError("RoleIds", "Role not found");
                     return View(model);
                 }
 
@@ -195,7 +195,7 @@ namespace Identity.Areas.Admin.Controllers
                 var role = _roleManager.FindByIdAsync(roleId).Result;
                 if (role is null)
                 {
-                    ModelState.AddModelError("RoleIds", "Role is not found");
+                    ModelState.AddModelError("RoleIds", "Role not found");
                     return View(model);
                 }
 

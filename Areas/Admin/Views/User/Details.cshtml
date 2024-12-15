@@ -1,13 +1,29 @@
 ﻿@using Identity.Areas.Admin.Models.User
 @model UserDetailsVM
 
-<p>Email: @Model.Email</p>
-<p>Country: @Model.Country</p>
-<p>City: @Model.City</p>
-<div class="form-group last mb-4">
-    Roles:
-    @foreach (var role in Model.Roles)
-    {
-        <p>@role</p>
-    }
+<div>
+    <h2>User Details</h2>
+    <hr />
+    <table>
+        <tr>
+            <td><strong>Email:</strong></td>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <td><strong>Country:</strong></td>
+            <td>@Model.Country</td>
+        </tr>
+        <tr>
+            <td><strong>City:</strong></td>
+            <td>@Model.City</td>
+        </tr>
+    </table>
+
+    <h3>Roles:</h3>
+    <ul>
+        @foreach (var role in Model.Roles)
+        {
+            <li>@role</li>
+        }
+    </ul>
 </div>

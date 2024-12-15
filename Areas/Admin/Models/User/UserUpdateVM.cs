@@ -5,11 +5,6 @@ namespace Identity.Areas.Admin.Models.User
 {
     public class UserUpdateVM
     {
-        public UserUpdateVM()
-        {
-            RoleIds = new List<string>();
-        }
-
         [Required]
         [EmailAddress]
         [DataType(DataType.EmailAddress)]

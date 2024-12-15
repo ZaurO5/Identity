@@ -6,12 +6,13 @@ using Identity.Utilities.EmailHandler.Concrete;
 using Identity.Utilities.EmailHandler.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<AppDbContext>(Options => Options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -22,7 +23,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequireUppercase = false;
     options.User.RequireUniqueEmail = true;
 })
-    .AddEntityFrameworkStores<AppDbContext>();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
 var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfiguration);
@@ -32,13 +34,11 @@ var app = builder.Build();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=dashboard}/{action=index}/{id?}"
-    );
+    pattern: "{area:exists}/{controller=dashboard}/{action=index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=account}/{action=register}"
-    );
+    pattern: "{controller=account}/{action=register}");
 
 app.UseAuthentication();
 app.UseAuthorization();

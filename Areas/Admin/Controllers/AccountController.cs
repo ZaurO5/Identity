@@ -21,6 +21,8 @@ namespace Identity.Areas.Admin.Controllers
             _roleManager = roleManager;
         }
 
+        #region Login
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -56,5 +58,7 @@ namespace Identity.Areas.Admin.Controllers
 
             return RedirectToAction("index", "dashboard");
         }
+
+        #endregion
     }
 }

@@ -5,10 +5,6 @@ namespace Identity.Areas.Admin.Models.User
 {
     public class UserCreateVM
     {
-        public UserCreateVM()
-        {
-            RoleIds = new List<string>();
-        }
         [Required]
         [EmailAddress]
         [DataType(DataType.EmailAddress)]

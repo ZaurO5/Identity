@@ -1,0 +1,38 @@
+﻿@using Identity.Areas.Admin.Models.Email
+@using Identity.Constants
+@model EmailVM
+
+@if (TempData["Message"] != null)
+{
+        <div class="alert alert-success">
+        @TempData["Message"]
+        </div>
+}
+
+<form method="post" asp-controller="Email" asp-action="SendEmail">
+    <h2>Send Email</h2>
+    <hr />
+
+    <div>
+        <label asp-for="ReceiverType">Receiver Users:</label>
+        <select asp-for="ReceiverType" asp-items="Html.GetEnumSelectList<ReceiverType>()">
+            <option value="">Select Users</option>
+        </select>
+        <span asp-validation-for="ReceiverType" class="error-message"></span>
+    </div>
+
+    <div>
+        <label asp-for="Subject">Subject:</label>
+        <input type="text" asp-for="Subject" />
+    </div>
+
+    <div>
+        <label asp-for="Content">Content:</label>
+        <textarea asp-for="Content"></textarea>
+        <span asp-validation-for="Content" class="error-message"></span>
+    </div>
+
+    <div>
+        <button type="submit">Send</button>
+    </div>
+</form>

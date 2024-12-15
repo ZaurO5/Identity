@@ -32,7 +32,7 @@
                 </td>
                 <td class="text-center d-flex justify-content-center">
                     <a class="btn btn-secondary mx-2" asp-action="update" asp-controller="user" asp-route-id="@user.Id">Update</a>
-                    <a class="btn btn-info mx-2" asp-action="details" asp-controller="user">Details</a>
+                    <a class="btn btn-info mx-2" asp-action="details" asp-controller="user" asp-route-id="@user.Id">Details</a>
                     <form method="post" asp-action="delete" asp-controller="user" asp-route-id="@user.Id">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>

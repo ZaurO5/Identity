@@ -4,7 +4,7 @@ namespace Identity.ViewModels.Account
 {
     public class AccountForgetPasswordVM
     {
-        [Required(ErrorMessage = "Email is required")]
+        [Required(ErrorMessage = "Required. Please Enter")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
     }

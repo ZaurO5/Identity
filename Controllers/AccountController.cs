@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Identity.Utilities.EmailHandler.Models;
 using Identity.Utilities.EmailHandler.Abstract;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace Identity.Controllers
 {
@@ -54,6 +55,11 @@ namespace Identity.Controllers
 
                 return View(model);
             }
+
+            var token = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
+            var url = Url.Action(nameof(ConfirmEmail), "Account", new { token, user.Email }, Request.Scheme);
+            _emailService.SendMessage(new Message(new List<string> { user.Email }, "Email Confirmation", url));
+
 
             return RedirectToAction(nameof(Login));
         }
@@ -151,11 +157,11 @@ namespace Identity.Controllers
             var user = _userManager.FindByNameAsync(model.Email).Result;
             if (user is null)
             {
-                ModelState.AddModelError("Password", "It was not possible to update the password");
+                ModelState.AddModelError("Password", "Impossible to update the password");
                 return View(model);
             }
 
-            var result = _userManager.ResetPasswordAsync(user, model.Token, model.Password).Result;
+            var result = _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword).Result;
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -165,6 +171,53 @@ namespace Identity.Controllers
             }
 
             return RedirectToAction(nameof(Login));
+        }
+
+        #endregion
+
+        #region Subscribe
+
+        [HttpPost]
+        public IActionResult Subscribe(string email)
+        {
+            if (!ModelState.IsValid) return NotFound();
+
+            var user = _userManager.FindByEmailAsync(email).Result;
+            if (user is null)
+            {
+                ModelState.AddModelError("Email", "User not found");
+                return View();
+            }
+
+            var token = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
+            var url = Url.Action(nameof(ConfirmSubscription), "Account", new { token, user.Email }, Request.Scheme);
+            _emailService.SendMessage(new Message(new List<string> { user.Email }, "Confirm subscription", url));
+
+            ViewBag.NotificationText = "Mail sent successfully";
+            return View("Notification");
+        }
+
+        #endregion
+
+        #region ConfirmSubscription
+
+        public IActionResult ConfirmSubscription(string email, string token)
+        {
+            var user = _userManager.FindByEmailAsync(email).Result;
+            if (user is null) return NotFound();
+
+            user.IsSubscribed = true;
+
+            var updateResult = _userManager.UpdateAsync(user).Result;
+            if (!updateResult.Succeeded)
+            {
+                foreach (var error in updateResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View();
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         #endregion
